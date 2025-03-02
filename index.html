@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Глобальная карта проблем Земли</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    /* Стили для страницы */
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+    /* Стили для модального окна */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+    .modal-content {
+      background-color: #ffffff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+    }
+    .modal-content h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover,
+    .close:focus {
+      color: #000;
+      text-decoration: none;
+    }
+    .modal-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    /* Скрываем стандартную ватермарку Leaflet */
+    .leaflet-control-attribution {
+      display: none;
+    }
+    /* Стили для вашей ватермарки */
+    .watermark {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      z-index: 1001;
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 5px 8px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="display: none;">Глобальная карта проблем Земли</h2>
+  <div id="map"></div>
+
+  <!-- Ватермарка -->
+  <div class="watermark">Рустам Комаров</div>
+
+  <!-- Модальное окно для подробностей -->
+  <div id="detailModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <img id="modalImage" src="" alt="Изображение проблемы" />
+      <h3 id="modalTitle"></h3>
+      <p id="modalDescription"></p>
+    </div>
+  </div>
+
+  <!-- Подключаем Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Инициализация карты
+    var map = L.map('map').setView([20, 0], 2);
+
+    // Добавление базового слоя OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: ''
+    }).addTo(map);
+
+    // Объект для сопоставления имен иконок с URL иконками
+    var iconMapping = {
+      climate: "https://img.icons8.com/color/48/000000/climate-change.png",
+      water_drop: "https://img.icons8.com/color/48/000000/water.png",
+      nutrition: "https://img.icons8.com/color/48/000000/vegetarian-food.png",
+      health_and_safety: "https://img.icons8.com/color/48/000000/stethoscope.png",
+      school: "https://img.icons8.com/color/48/000000/school.png",
+      // diversity_3, energy, recycling, diversity_1 будут отображаться стандартным пином,
+      // для остальных используем кастомные иконки
+      nature: "https://img.icons8.com/color/48/000000/leaf.png",
+      factory: "https://img.icons8.com/color/48/000000/factory.png",
+      language: "https://img.icons8.com/color/48/000000/language.png"
+    };
+
+    // URL для дефолтной иконки, если требуется (но для стандартного пина Leaflet этот URL не используется)
+    var defaultIconUrl = "https://img.icons8.com/color/48/000000/info.png";
+
+    // Массив данных для пинов с проблемами
+    var problems = [
+      {
+        id: "climate", 
+        title: "Изменение Климата",
+        description: "Решение глобального климатического кризиса через устойчивые решения и изменения в политике.",
+        icon: "climate",
+        lat: 48.8566, lng: 2.3522 // Париж
+      },
+      {
+        id: "water_drop",
+        title: "Нехватка Воды",
+        description: "Обеспечение доступа к чистой воде для сообществ по всему миру через инновационные технологии.",
+        icon: "water_drop",
+        lat: -1.2921, lng: 36.8219 // Найроби, Кения
+      },
+      {
+        id: "nutrition",
+        title: "Продовольственная Безопасность",
+        description: "Развитие устойчивых сельскохозяйственных практик для борьбы с голодом.",
+        icon: "nutrition",
+        lat: 28.6139, lng: 77.2090 // Дели, Индия
+      },
+      {
+        id: "health_and_safety",
+        title: "Доступ к Здравоохранению",
+        description: "Улучшение глобальных систем здравоохранения и обеспечение равного доступа к медицине.",
+        icon: "health_and_safety",
+        lat: 40.7128, lng: -74.0060 // Нью-Йорк, США
+      },
+      {
+        id: "school",
+        title: "Образовательный Разрыв",
+        description: "Преодоление образовательного неравенства и продвижение доступного обучения.",
+        icon: "school",
+        lat: 51.5074, lng: -0.1278 // Лондон, Великобритания
+      },
+      {
+        id: "diversity_3",
+        title: "Социальное Неравенство",
+        description: "Работа по сокращению социального и экономического неравенства.",
+        icon: "diversity_3",
+        lat: -23.5505, lng: -46.6333 // Сан-Паулу, Бразилия
+      },
+      {
+        id: "energy",
+        title: "Энергетический Кризис",
+        description: "Разработка возобновляемых источников энергии для устойчивого будущего.",
+        icon: "energy",
+        lat: 25.2048, lng: 55.2708 // Дубай, ОАЭ
+      },
+      {
+        id: "nature",
+        title: "Потеря Биоразнообразия",
+        description: "Защита исчезающих видов и сохранение природных экосистем.",
+        icon: "nature",
+        lat: -33.8688, lng: 151.2093 // Сидней, Австралия
+      },
+      {
+        id: "factory",
+        title: "Промышленное Загрязнение",
+        description: "Борьба с промышленными выбросами и переход к чистому производству.",
+        icon: "factory",
+        lat: 35.6895, lng: 139.6917 // Токио, Япония
+      },
+      {
+        id: "recycling",
+        title: "Управление Отходами",
+        description: "Развитие систем переработки и сокращение количества отходов.",
+        icon: "recycling",
+        lat: 37.7749, lng: -122.4194 // Сан-Франциско, США
+      },
+      {
+        id: "language",
+        title: "Цифровое Неравенство",
+        description: "Преодоление разрыва в доступе к цифровым технологиям.",
+        icon: "language",
+        lat: 52.5200, lng: 13.4050 // Берлин, Германия
+      },
+      {
+        id: "diversity_1",
+        title: "Миграционный Кризис",
+        description: "Поддержка беженцев и решение проблем вынужденной миграции.",
+        icon: "diversity_1",
+        lat: 41.9028, lng: 12.4964 // Рим, Италия
+      }
+    ];
+
+    // Получаем элементы модального окна
+    var modal = document.getElementById("detailModal");
+    var modalTitle = document.getElementById("modalTitle");
+    var modalDescription = document.getElementById("modalDescription");
+    var modalImage = document.getElementById("modalImage");
+    var spanClose = document.getElementsByClassName("close")[0];
+
+    // Функция открытия модального окна
+    function openModal(title, description, imageUrl) {
+      modalTitle.textContent = title;
+      modalDescription.textContent = description;
+      modalImage.src = imageUrl;
+      modal.style.display = "block";
+    }
+
+    // Функция закрытия модального окна
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    spanClose.onclick = function() {
+      closeModal();
+    };
+
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        closeModal();
+      }
+    };
+
+    // Массив id маркеров, для которых используется стандартный пин Leaflet
+    var standardPins = ["diversity_1", "energy", "diversity_3", "recycling"];
+
+    // Добавление пинов на карту
+    problems.forEach(function(problem) {
+      var marker;
+      // Если у маркера id содержится в массиве standardPins, используем стандартный пин
+      if (standardPins.indexOf(problem.id) !== -1) {
+        marker = L.marker([problem.lat, problem.lng]).addTo(map);
+        // Для стандартного пина можно использовать дефолтное изображение для модалки
+        var imageUrl = defaultIconUrl;
+        marker.on('click', function() {
+          openModal(problem.title, problem.description, imageUrl);
+        });
+      } else {
+        // Если маркер не из списка стандартных, используем кастомную иконку из iconMapping
+        var iconUrl = iconMapping[problem.icon] || defaultIconUrl;
+        var customIcon = L.icon({
+          iconUrl: iconUrl,
+          iconSize: [48, 48],
+          iconAnchor: [24, 48],
+          popupAnchor: [0, -48]
+        });
+        marker = L.marker([problem.lat, problem.lng], { icon: customIcon }).addTo(map);
+        marker.on('click', function() {
+          openModal(problem.title, problem.description, iconUrl);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
