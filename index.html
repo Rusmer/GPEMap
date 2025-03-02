@@ -109,105 +109,91 @@
     // Объект для сопоставления имен иконок с URL иконками
     var iconMapping = {
       climate: "https://img.icons8.com/color/48/000000/climate-change.png",
-      water_drop: "https://img.icons8.com/color/48/000000/water.png",
-      nutrition: "https://img.icons8.com/color/48/000000/vegetarian-food.png",
-      health_and_safety: "https://img.icons8.com/color/48/000000/stethoscope.png",
-      school: "https://img.icons8.com/color/48/000000/school.png",
-      // diversity_3, energy, recycling, diversity_1 будут отображаться стандартным пином,
-      // для остальных используем кастомные иконки
-      nature: "https://img.icons8.com/color/48/000000/leaf.png",
-      factory: "https://img.icons8.com/color/48/000000/factory.png",
-      language: "https://img.icons8.com/color/48/000000/language.png"
+      water: "https://img.icons8.com/color/48/000000/water.png",
+      food: "https://img.icons8.com/color/48/000000/vegetarian-food.png",
+      health: "https://img.icons8.com/color/48/000000/stethoscope.png",
+      education: "https://img.icons8.com/color/48/000000/school.png",
+      inequality: "https://img.icons8.com/color/48/000000/conference-call.png",
+      energy: "https://img.icons8.com/color/48/000000/solar-panel.png",
+      biodiversity: "https://img.icons8.com/color/48/000000/leaf.png",
+      pollution: "https://img.icons8.com/color/48/000000/factory.png",
+      digital: "https://img.icons8.com/color/48/000000/internet.png"
     };
 
-    // URL для дефолтной иконки, если требуется (но для стандартного пина Leaflet этот URL не используется)
+    // URL для дефолтной иконки, если требуется
     var defaultIconUrl = "https://img.icons8.com/color/48/000000/info.png";
 
-    // Массив данных для пинов с проблемами
+    // Новый массив данных для «нормальных» проблем
     var problems = [
       {
-        id: "climate", 
-        title: "Изменение Климата",
-        description: "Решение глобального климатического кризиса через устойчивые решения и изменения в политике.",
+        id: "climate",
+        title: "Климатический кризис",
+        description: "Глобальное потепление, экстремальные погодные условия и повышение уровня моря требуют срочных мер по снижению выбросов парниковых газов и переходу к устойчивым источникам энергии.",
         icon: "climate",
-        lat: 48.8566, lng: 2.3522 // Париж
-      },
-      {
-        id: "water_drop",
-        title: "Нехватка Воды",
-        description: "Обеспечение доступа к чистой воде для сообществ по всему миру через инновационные технологии.",
-        icon: "water_drop",
-        lat: -1.2921, lng: 36.8219 // Найроби, Кения
-      },
-      {
-        id: "nutrition",
-        title: "Продовольственная Безопасность",
-        description: "Развитие устойчивых сельскохозяйственных практик для борьбы с голодом.",
-        icon: "nutrition",
-        lat: 28.6139, lng: 77.2090 // Дели, Индия
-      },
-      {
-        id: "health_and_safety",
-        title: "Доступ к Здравоохранению",
-        description: "Улучшение глобальных систем здравоохранения и обеспечение равного доступа к медицине.",
-        icon: "health_and_safety",
-        lat: 40.7128, lng: -74.0060 // Нью-Йорк, США
-      },
-      {
-        id: "school",
-        title: "Образовательный Разрыв",
-        description: "Преодоление образовательного неравенства и продвижение доступного обучения.",
-        icon: "school",
         lat: 51.5074, lng: -0.1278 // Лондон, Великобритания
       },
       {
-        id: "diversity_3",
-        title: "Социальное Неравенство",
-        description: "Работа по сокращению социального и экономического неравенства.",
-        icon: "diversity_3",
-        lat: -23.5505, lng: -46.6333 // Сан-Паулу, Бразилия
+        id: "water",
+        title: "Нехватка чистой воды",
+        description: "Миллионы людей по всему миру страдают от отсутствия доступа к чистой питьевой воде, что ведет к распространению заболеваний и конфликтам за ресурсы.",
+        icon: "water",
+        lat: 30.0444, lng: 31.2357 // Каир, Египет
+      },
+      {
+        id: "food",
+        title: "Проблемы продовольственной безопасности",
+        description: "Нестабильное сельское хозяйство и изменение климата приводят к нехватке продовольствия, что особенно остро ощущается в развивающихся странах.",
+        icon: "food",
+        lat: 19.4326, lng: -99.1332 // Мехико, Мексика
+      },
+      {
+        id: "health",
+        title: "Недоступное здравоохранение",
+        description: "Многие регионы мира испытывают нехватку медицинских ресурсов, что затрудняет доступ к качественной медицинской помощи и способствует распространению инфекционных заболеваний.",
+        icon: "health",
+        lat: 39.9042, lng: 116.4074 // Пекин, Китай
+      },
+      {
+        id: "education",
+        title: "Низкий уровень образования",
+        description: "Ограниченный доступ к образованию препятствует социально-экономическому развитию и снижает возможности для преодоления бедности.",
+        icon: "education",
+        lat: 28.6139, lng: 77.2090 // Дели, Индия
+      },
+      {
+        id: "inequality",
+        title: "Социальное неравенство",
+        description: "Увеличивающийся разрыв между богатыми и бедными ведёт к социальной нестабильности и росту преступности.",
+        icon: "inequality",
+        lat: 40.4168, lng: -3.7038 // Мадрид, Испания
       },
       {
         id: "energy",
-        title: "Энергетический Кризис",
-        description: "Разработка возобновляемых источников энергии для устойчивого будущего.",
+        title: "Энергетическая зависимость",
+        description: "Высокая зависимость от ископаемых видов топлива тормозит развитие возобновляемой энергетики и способствует ухудшению экологии.",
         icon: "energy",
-        lat: 25.2048, lng: 55.2708 // Дубай, ОАЭ
+        lat: 55.7558, lng: 37.6173 // Москва, Россия
       },
       {
-        id: "nature",
-        title: "Потеря Биоразнообразия",
-        description: "Защита исчезающих видов и сохранение природных экосистем.",
-        icon: "nature",
-        lat: -33.8688, lng: 151.2093 // Сидней, Австралия
+        id: "biodiversity",
+        title: "Утрата биоразнообразия",
+        description: "Вымирание видов и разрушение экосистем негативно сказываются на устойчивости природных ресурсов и жизнедеятельности человека.",
+        icon: "biodiversity",
+        lat: -3.4653, lng: -62.2159 // Амазонка (близ Летраль, Бразилия)
       },
       {
-        id: "factory",
-        title: "Промышленное Загрязнение",
-        description: "Борьба с промышленными выбросами и переход к чистому производству.",
-        icon: "factory",
+        id: "pollution",
+        title: "Промышленное загрязнение",
+        description: "Индустриальные выбросы и неправильное управление отходами наносят ущерб окружающей среде и здоровью людей.",
+        icon: "pollution",
         lat: 35.6895, lng: 139.6917 // Токио, Япония
       },
       {
-        id: "recycling",
-        title: "Управление Отходами",
-        description: "Развитие систем переработки и сокращение количества отходов.",
-        icon: "recycling",
-        lat: 37.7749, lng: -122.4194 // Сан-Франциско, США
-      },
-      {
-        id: "language",
-        title: "Цифровое Неравенство",
-        description: "Преодоление разрыва в доступе к цифровым технологиям.",
-        icon: "language",
+        id: "digital",
+        title: "Цифровое неравенство",
+        description: "Неравномерный доступ к информационным технологиям ограничивает возможности людей получать образование, работу и участвовать в глобальной экономике.",
+        icon: "digital",
         lat: 52.5200, lng: 13.4050 // Берлин, Германия
-      },
-      {
-        id: "diversity_1",
-        title: "Миграционный Кризис",
-        description: "Поддержка беженцев и решение проблем вынужденной миграции.",
-        icon: "diversity_1",
-        lat: 41.9028, lng: 12.4964 // Рим, Италия
       }
     ];
 
@@ -241,22 +227,21 @@
       }
     };
 
-    // Массив id маркеров, для которых используется стандартный пин Leaflet
-    var standardPins = ["diversity_1", "energy", "diversity_3", "recycling"];
+    // Для некоторых проблем можно использовать стандартный пин Leaflet. Если необходимо, добавьте их id в этот массив
+    var standardPins = [];
 
     // Добавление пинов на карту
     problems.forEach(function(problem) {
       var marker;
-      // Если у маркера id содержится в массиве standardPins, используем стандартный пин
+      // Если id присутствует в массиве standardPins, используем стандартный пин
       if (standardPins.indexOf(problem.id) !== -1) {
         marker = L.marker([problem.lat, problem.lng]).addTo(map);
-        // Для стандартного пина можно использовать дефолтное изображение для модалки
         var imageUrl = defaultIconUrl;
         marker.on('click', function() {
           openModal(problem.title, problem.description, imageUrl);
         });
       } else {
-        // Если маркер не из списка стандартных, используем кастомную иконку из iconMapping
+        // Используем кастомные иконки из iconMapping
         var iconUrl = iconMapping[problem.icon] || defaultIconUrl;
         var customIcon = L.icon({
           iconUrl: iconUrl,
